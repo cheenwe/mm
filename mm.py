@@ -2,7 +2,6 @@
 
 import re
 import os
-import logging
 import utils
 import urllib2
 from sqlhelper import SqlHelper
@@ -22,14 +21,6 @@ class Crawler(object):
         self.names= []
         self.sql = SqlHelper()
 
-        if not os.path.exists('log'):
-            os.makedirs('log')
-
-        logging.basicConfig(
-                filename = 'log/validator.log',
-                format = '%(asctime)s: %(message)s',
-                level = logging.DEBUG
-        )
 
     def readHtml(self, html):
         response = urllib2.urlopen(html)
@@ -50,7 +41,12 @@ class Crawler(object):
             # 插入用户
             command = self.sql.insert_data_to_users()
             msg = (model_id, self.names[i], "",)
-            self.sql.insert_data(command, msg, commit = True)
+
+            try:
+                self.sql.insert_data(command, msg, commit = True)
+            except Exception, e:
+                utils.log('insert users data errors')
+
 
             for page in xrange(1, 10):
                 utils.log('current page:%s' % page)
@@ -65,13 +61,23 @@ class Crawler(object):
                     album_name = album.find('h4').a.string.strip().rstrip('.')
                     album_link= album.find('h4').a['href']
                     album_id = re.findall(self.album_pattern, album_link)[0]
-                    album_create_time = album.find('p', class_ = 'mm-photo-date').string.lstrip(u'创建时间: ')
-                    album_img_count = album.find('span', class_ = 'mm-pic-number').string.strip('()').strip(u'张')
+                    album_create_time = album.find('p', class_ = 'mm-photo-date').string.strip(u'创建时间: ').strip(u'´´½¨Ê±¼ä:')
+                    album_img_count = album.find('span', class_ = 'mm-pic-number').string.strip('()').strip(u'张').strip(u'ÕÅ')
+
+                    # print ">>>>>>>>>>>>>>>>>>>>>>"
+                    # print album.find('p', class_ = 'mm-photo-date').string
+                    # print album_create_time
+                    # print ">>>>>>>>>>>>>>>>>>>>>>"
 
                     # 插入相册
                     command = self.sql.insert_data_to_albums()
                     msg = (album_id, model_id, album_name, album_create_time, "", 1, album_img_count)
-                    self.sql.insert_data(command, msg, commit = True)
+                    try:
+                        self.sql.insert_data(command, msg, commit = True)
+                    except Exception, e:
+                        utils.log('insert albums data errors')
+
+
                     utils.log('start in album:%s, total size: %s' % (album_name, album_img_count))
 
                     self.getImages(model_id, album_id, album_img_count)
@@ -97,7 +103,12 @@ class Crawler(object):
                 # 插入图片
                 command = self.sql.insert_data_to_photos()
                 msg = (None, album_id, "", img_url,  1)
-                self.sql.insert_data(command, msg, commit = True)
+                try:
+                    self.sql.insert_data(command, msg, commit = True)
+                except Exception, e:
+                    utils.log('insert photos data errors')
+
+
                 # print 'created photos success'
 
 
