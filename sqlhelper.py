@@ -106,6 +106,6 @@ class SqlHelper(object):
 
 #创建表
 sql = SqlHelper()
-sql.create_table("create table users(id bigint, name varchar(255), remark text)")
-sql.create_table("create table albums(id bigint, user_id bigint, name varchar(255), created_at date, remark text, kind int, total float)")
-sql.create_table("create table photos(id bigint, album_id bigint, name varchar(255), url varchar(255), kind int)")
+sql.create_table("create table IF NOT EXISTS  users(id bigint, name varchar(255), remark text )")
+sql.create_table("create table IF NOT EXISTS albums(id bigint, user_id bigint, name varchar(255), created_at date, remark text, kind int, total float)  ")
+sql.create_table("create table IF NOT EXISTS photos(id bigint, album_id bigint, name varchar(255), url varchar(255), kind int) ")

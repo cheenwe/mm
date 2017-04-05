@@ -26,7 +26,7 @@ class Crawler(object):
             os.makedirs('log')
 
         logging.basicConfig(
-                filename = 'log/run.log',
+                filename = 'log/validator.log',
                 format = '%(asctime)s: %(message)s',
                 level = logging.DEBUG
         )
